@@ -1,0 +1,104 @@
+"""
+Programa feito para auxiliar os membros do grupo oficial de "touhou lostword" (outdated)
+
+
+quando eu escolher uma personagem na torre (por exemplo, tenshi e reimu)
+
+primeiro passo > escolher as barreiras fortes e fracas da primeira e depois da segunda personagem
+segundo passo >   rodar o programa para ele selecionar as 20 personagens mais fortes contra esse determinado time
+
+parametros que determinam quem é mais forte contra o que
+atribuir a cada personagem uma variável chamada ''vantagem'' que vai ganhar +1 para cada parametro vantajoso
+atributos para serem analisados:
+
+ºataques que correspondem as fraquezas das barreiras - atkelementhigh = +3 / atkelementslow = +1
+ºtipo predominante dos ataques (yin ou yang) = +2
+ºtipos efetivos contra espécies(efetivo contra youkai, swordsman, etc) +1
+
+"""
+
+
+from exercicios.Touhou.lib import *
+from time import sleep
+from exercicios.Touhou.models.Person import *
+
+personagens = []
+
+charlist = [reimu, marisa, sakuya, patchouli, yukari, youmu, lilly, reisen, kasen, cirno, daiyousei,
+            alice, medicine, sanae, nitori, ran, chen, meiling, flandre, remilia, yuyuko, sunny, luna,
+            sapphire, mokou, seiran, ringo, rei_sen, byakuren, toyohime, yorihime, kosuzu, akyuu, kanako,
+            suwako, minoriko, shizuha, koishi, yatsuhashi, benben, koakuma, nemuno, satori, tewi,
+            momiji, hatate, marisaz1, rumia, hina, clownpiece, suika, aya, yoshika, seiga, sagume,
+            eirin, kaguya, youmur8, shion, aunn, kokoro, yuugi, lunasa, merlin, lyrica]
+
+# 1º maneira
+
+sorted_charlist = sorted(charlist, key=lambda char: char.hp, reverse=True)
+
+# 2º maneira
+
+#def charsort(person):
+#    return person.hp
+
+enemylist = []
+elementlist = []
+topS = []
+topA = []
+topB = []
+while True:
+    list = ['fraquezas', 'Run', 'Iniciar programa', 'mostrar times', 'sair']
+    menu(list)
+    resposta = leiaint('Escolha sua opção: ')
+    if resposta == 1:
+        print("Opções: sun-moon-fire-water-wood-metal-earth-star")
+        elemento = leiastr('Digitar elemento: ')
+        for char in charlist:
+             if elemento in char.barstrong:
+                print(f'{elemento:<5} \033[31mperde para\033[0;0m {char.name:<0}')
+        for char in charlist:
+            if elemento in char.barweak:
+                print(f'{elemento:<5} \033[92mganha de\033[0;0m {char.name:<0}')
+
+    elif resposta == 2:
+        quant = leiaint('Quantos inimigos: ')
+        for x in range(0, quant):
+            nome = leiastr(f'\033[92mNome\033[0;0m da {x+1}º personagem: ')
+            quant = leiaint('\033[92mQuantidade\033[0;0m barreiras: ')
+            for indice, character in enumerate(charlist):
+                if nome == character.name:
+                    enemylist.append(character)
+                    for y in range(0, quant):
+                        elemento2 = leiastr('Elemento de\033[92m fraqueza\033[0;0m da barreira: ')
+                        elementlist.append(elemento2)
+                        if len(elementlist) == quant:
+                            setattr(character, 'tower', elementlist[:])
+                            elementlist.clear()
+
+        if len(enemylist) == 0:
+            print('Escolha um time inimigo primeiro')
+            sleep(1)
+        else:
+            for y in enemylist:
+                for x in charlist:
+                    if itenscomuns(x.antirace, y.races) > 0:  # Compara antiraces com races
+                        x.power += 2
+                    if compare_element(x.atkelement, y.barweak) > 0:  # Compara o valor de atkelement com barweak
+                        x.power += compare_element(x.atkelement, y.barweak)
+
+
+                    # if itenscomuns(x.elementoweak, y.barweak) > 0: #Compara antiraces com races
+                    #   x.power += 1
+
+        for x in sorted(charlist, key=lambda char: char.power, reverse=True):
+            print(x.name, x.power)
+    elif resposta == 3:
+        pass
+    elif resposta == 4:
+        for x in range(0, 6):
+            print('o melhor time')
+            print(f'{sorted(charlist, key=lambda char: char.power, reverse=True)[x]}')
+    elif resposta == 5:
+        break
+    else:
+        print('digite um valor válido')
+        sleep(1)
